@@ -60,7 +60,7 @@ class Program
 
                 ethernetPacket.PayloadPacket = arpReplyToGateway;
                 device.SendPacket(ethernetPacket);
-                Console.WriteLine("--- [SPOOF REPLY TO GATEWAY] ARP Packet sent ---");
+                Console.WriteLine("--- [SPOOFED REPLY TO GATEWAY] ARP Packet sent ---");
             }
             catch (Exception ex)
             {
