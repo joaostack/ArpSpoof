@@ -10,22 +10,27 @@ class Program
     static void Main()
     {
         var devices = CaptureDeviceList.Instance;
-        foreach (var dev in devices)
-        {
-            Console.WriteLine("Name: {0} | Desc: {1} | Mac: {2}", dev.Name, dev.Description, dev.MacAddress);
-        }
-
-        Console.WriteLine("Press any key to continue...");
-        Console.ReadKey();
-
         if (devices.Count < 1)
         {
             Console.WriteLine("No iface found!");
             return;
         }
 
-        var device = devices[2];
+        for (int i = 0; i < devices.Count; i++)
+        {
+            var dev = devices[i];
+            Console.WriteLine("{0}: Name: {1} | Desc: {2} | Mac: {3}", i, dev.Name, dev.Description, dev.MacAddress);
+        }
 
+        Console.WriteLine("Select an interface by entering the corresponding number:");
+
+        int selectedIndex;
+        while (!int.TryParse(Console.ReadLine(), out selectedIndex) || selectedIndex < 0 || selectedIndex >= devices.Count)
+        {
+            Console.WriteLine("Invalid selection. Please enter a valid number.");
+        }
+
+        var device = devices[selectedIndex];
         Console.WriteLine("Using: {0}", device.Name);
         device.Open(DeviceModes.Promiscuous);
 
