@@ -10,7 +10,7 @@ class Program
 {
     static string targetMac;
     static IPAddress gatewayIp;
-    static PhysicalAddress gatewayMac;
+    static string gatewayMac;
     static void Main()
     {
         Console.Clear();
@@ -51,7 +51,7 @@ class Program
         Console.WriteLine("Gateway MAC: {0}", gatewayMac);
     }
 
-    static PhysicalAddress GetMacFromIp(ILiveDevice device, IPAddress ip)
+    static string GetMacFromIp(ILiveDevice device, IPAddress ip)
     {
         var broadcastMac = PhysicalAddress.Parse("FF-FF-FF-FF-FF-FF");
 
@@ -98,6 +98,11 @@ class Program
         device.StopCapture();
         stopwatch.Stop();
 
-        return string.IsNullOrEmpty(targetMac) ? null : PhysicalAddress.Parse(targetMac);
+        return string.IsNullOrEmpty(targetMac) ? null : FormatedMac(PhysicalAddress.Parse(targetMac));
+    }
+
+    static string FormatedMac(PhysicalAddress mac)
+    {
+        return string.Join(":", mac.GetAddressBytes().Select(b => b.ToString("X2")));
     }
 }
