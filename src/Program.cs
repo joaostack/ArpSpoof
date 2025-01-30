@@ -8,12 +8,25 @@ using System.Diagnostics;
 
 class Program
 {
+    static string ASCIIART = @"
+   ___   ___  ___  ____  ____________  _  __
+  / _ | / _ \/ _ \/ __ \/  _/ __/ __ \/ |/ /
+ / __ |/ , _/ ___/ /_/ // /_\ \/ /_/ /    / 
+/_/ |_/_/|_/_/   \____/___/___/\____/_/|_/
+By joaostack
+";
+
     static string targetMac;
     static IPAddress gatewayIp;
     static string gatewayMac;
     static void Main()
     {
         Console.Clear();
+
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.WriteLine(ASCIIART);
+        Console.ResetColor();
+
         var devices = CaptureDeviceList.Instance;
         if (devices.Count < 1)
         {
@@ -21,31 +34,47 @@ class Program
             return;
         }
 
-        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine(new string('=', 50));
         for (int i = 0; i < devices.Count; i++)
         {
             var dev = devices[i];
-            Console.WriteLine("{0}: Name: {1} | Desc: {2} | Mac: {3}", i, dev.Name, dev.Description, dev.MacAddress);
+            Console.WriteLine("{0}: Desc: {1} | Mac: {2}", i, dev.Description, dev.MacAddress);
         }
+        Console.WriteLine(new string('=', 50));
         Console.ResetColor();
 
-        Console.WriteLine("Select an interface by entering the corresponding number:");
+        Console.WriteLine();
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Select an interface by entering the corresponding number: ");
+        Console.ResetColor();
 
         int selectedIndex;
         while (!int.TryParse(Console.ReadLine(), out selectedIndex) || selectedIndex < 0 || selectedIndex >= devices.Count)
         {
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Invalid selection. Please enter a valid number.");
+            Console.ResetColor();
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Select an interface by entering the corresponding number: "); 
+            Console.ResetColor();
         }
 
         var device = devices[selectedIndex];
+        Console.ForegroundColor = ConsoleColor.Blue;
         Console.WriteLine("Using: {0}", device.Name);
+        Console.ResetColor();
         device.Open(DeviceModes.Promiscuous);
 
+        Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write("Enter the target IP address: ");
         var targetIp = IPAddress.Parse(Console.ReadLine());
 
         Console.Write("Enter the target Gateway IP address: ");
         gatewayIp = IPAddress.Parse(Console.ReadLine());
+        Console.ResetColor();
 
         targetMac = GetMacFromIp(device, targetIp);
         gatewayMac = GetMacFromIp(device, gatewayIp);
