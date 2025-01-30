@@ -39,7 +39,8 @@ By joaostack
         for (int i = 0; i < devices.Count; i++)
         {
             var dev = devices[i];
-            Console.WriteLine("{0}: Desc: {1} | Mac: {2}", i, dev.Description, dev.MacAddress);
+            var deviceMac = FormatedMac(dev.MacAddress);
+            Console.WriteLine("{0}: Desc: {1} | Mac: {2}", i, dev.Description, deviceMac);
         }
         Console.WriteLine(new string('=', 50));
         Console.ResetColor();
@@ -184,6 +185,11 @@ By joaostack
     // Format MAC ADDRESS
     static string FormatedMac(PhysicalAddress mac)
     {
-        return string.Join(":", mac.GetAddressBytes().Select(b => b.ToString("X2")));
+        if (mac != null)
+        {
+            return string.Join(":", mac.GetAddressBytes().Select(b => b.ToString("X2")));
+        }
+
+        return null;
     }
 }
