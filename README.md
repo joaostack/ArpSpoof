@@ -1,5 +1,5 @@
 # ArpSpoof
-arp spoof coded in c#
+Educational purposes only
 
 How's works
 
