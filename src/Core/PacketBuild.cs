@@ -47,7 +47,7 @@ public class PacketBuild
 
                 if (eth != null && arp != null &&
                     arp.SenderProtocolAddress.ToString() == host
-                    && arp.Operation == ArpOperation.Request)
+                    && arp.Operation == ArpOperation.Response)
                 {
                     macRes = arp.SenderHardwareAddress.ToString();
                     return;
