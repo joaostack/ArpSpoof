@@ -8,6 +8,9 @@ namespace ArpSpoof.Core;
 
 public class PacketBuild
 {
+    /// <summary>
+    /// Get mac address from ip address
+    /// </summary>
     public static async Task<PhysicalAddress> GetMacAddress(ILiveDevice device, string host, CancellationToken ct)
     {
         try
