@@ -34,6 +34,7 @@ By joaostack
             return;
         }
 
+        // Basic interface menu
         Console.ForegroundColor = ConsoleColor.Gray;
         Console.WriteLine(new string('=', 50));
         for (int i = 0; i < devices.Count; i++)
@@ -59,7 +60,7 @@ By joaostack
             Console.ResetColor();
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("Select an interface by entering the corresponding number: "); 
+            Console.Write("Select an interface by entering the corresponding number: ");
             Console.ResetColor();
         }
 
@@ -85,6 +86,7 @@ By joaostack
         Console.WriteLine("Target MAC: {0}", targetMac);
         Console.ResetColor();
 
+        // Poison starts here...
         while (true)
         {
             Spoof(device, targetIp, PhysicalAddress.Parse(gatewayMac), PhysicalAddress.Parse(targetMac));
