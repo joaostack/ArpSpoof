@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using ArpSpoof.Commands;
 using ArpSpoof.Core;
 
@@ -16,7 +17,7 @@ By github.com/joaostack
     /// </summary>
     /// <param name="target"></param>
     /// <param name="gateway"></param>
-    static void Main(string target, string gateway)
+    static async Task Main(string target, string gateway)
     {
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.WriteLine(ASCIIART);
@@ -28,14 +29,26 @@ By github.com/joaostack
             return;
         }
 
-        var CancellationTokenSource = new CancellationTokenSource();
-        var ct = CancellationTokenSource.Token;
+        try
+        {
+            var CancellationTokenSource = new CancellationTokenSource();
+            var ct = CancellationTokenSource.Token;
 
-        var device = DeviceHelper.SelectDevice();
-        var gatewayMac = PacketBuild.GetMacAddress(device, gateway, ct);
-        Console.WriteLine(gatewayMac);
+            var device = DeviceHelper.SelectDevice();
+            var gatewayMac = PacketBuild.GetMacAddress(device, gateway, ct);
+            Console.WriteLine(gatewayMac.ToString());
 
-        var cmd = new ArpSpoofCommands(target, gateway, gatewayMac.ToString());
-        cmd.Execute();
+            var cmd = new ArpSpoofCommands(target, gateway, gatewayMac.ToString());
+            await cmd.Execute();
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            Console.ResetColor();
+        }
     }
 }
