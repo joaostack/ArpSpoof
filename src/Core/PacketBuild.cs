@@ -11,7 +11,7 @@ public class PacketBuild
     /// <summary>
     /// Get mac address from ip address
     /// </summary>
-    public static async Task<PhysicalAddress> GetMacAddress(ILiveDevice device, string host, CancellationToken ct)
+    public static async Task<string> GetMacAddress(ILiveDevice device, string host, CancellationToken ct)
     {
         try
         {
@@ -22,24 +22,24 @@ public class PacketBuild
                             ?.Addr.ipAddress;
 
             var localMac = device.MacAddress;
+
+            var arpPacket = new ArpPacket(
+                            ArpOperation.Request,
+                            localMac,
+                            IPAddress.Parse(host),
+                            localMac,
+                            localIp);
+
             var ethernetPacket = new EthernetPacket(
                 localMac,
                 PhysicalAddress.Parse("FF-FF-FF-FF-FF-FF"),
                 EthernetType.Arp);
 
-            var arpPacket = new ArpPacket(
-                ArpOperation.Request,
-                localMac,
-                IPAddress.Parse(host),
-                localMac,
-                localIp
-            );
-
             ethernetPacket.PayloadPacket = arpPacket;
 
-            PhysicalAddress macRes = null;
+            string macRes = null;
 
-            device.OnPacketArrival += (sender, e) =>
+            device.OnPacketArrival += (object s, PacketCapture e) =>
             {
                 var packet = Packet.ParsePacket(e.GetPacket().LinkLayerType, e.GetPacket().Data);
                 var eth = packet.Extract<EthernetPacket>();
@@ -49,7 +49,7 @@ public class PacketBuild
                     arp.SenderProtocolAddress.ToString() == host
                     && arp.Operation == ArpOperation.Request)
                 {
-                    macRes = arp.SenderHardwareAddress;
+                    macRes = arp.SenderHardwareAddress.ToString();
                     return;
                 }
             };
@@ -59,7 +59,7 @@ public class PacketBuild
 
             device.StartCapture();
             device.SendPacket(ethernetPacket);
-            await Task.Delay(2000, ct);
+            await Task.Delay(3000, ct);
             device.StopCapture();
 
             return macRes ?? throw new InvalidOperationException($"[GetMacFromIP] MAC address not found for the target IP {host}");

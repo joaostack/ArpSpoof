@@ -16,7 +16,7 @@ public class ArpSpoofCommands
         _targetGatewayMac = targetGatewayMac;
     }
 
-    public async Task Execute()
+    public void Execute()
     {
         Console.WriteLine("testing 'Execute()'.");
     }

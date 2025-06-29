@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using ArpSpoof.Commands;
 using ArpSpoof.Core;
+using SharpPcap;
 
 class Program
 {
@@ -31,15 +32,19 @@ By github.com/joaostack
 
         try
         {
-            var CancellationTokenSource = new CancellationTokenSource();
-            var ct = CancellationTokenSource.Token;
+            var cts = new CancellationTokenSource();
+            var ct = cts.Token;
 
             var device = DeviceHelper.SelectDevice();
-            var gatewayMac = PacketBuild.GetMacAddress(device, gateway, ct);
+            DeviceHelper.OpenDevice(device);
+
+            var gatewayMac = await PacketBuild.GetMacAddress(device, gateway, ct);
             Console.WriteLine(gatewayMac.ToString());
 
             var cmd = new ArpSpoofCommands(target, gateway, gatewayMac.ToString());
-            await cmd.Execute();
+            cmd.Execute();
+
+            device.Close();
         }
         catch (Exception ex)
         {

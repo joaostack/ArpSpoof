@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Net.NetworkInformation;
 using SharpPcap;
 
@@ -44,5 +45,18 @@ public class DeviceHelper
         Console.ResetColor();
 
         return devices[index];
+    }
+
+    /// <summary>
+    /// Open network device
+    /// </summary>
+    public static void OpenDevice(ILiveDevice device)
+    {
+        if (device == null)
+        {
+            throw new ArgumentNullException(nameof(device), "Device cannot be null.");
+        }
+
+        device.Open(DeviceModes.Promiscuous, 1000);
     }
 }
