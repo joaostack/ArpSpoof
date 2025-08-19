@@ -1,4 +1,3 @@
-
 # ArpSpoof
 
 A simple ARP spoofing tool written in C# for Windows/Linux environments.  
@@ -69,4 +68,4 @@ Please respect ethical hacking principles and only test in environments you own 
 
 ## Author
 
-João H. (joaostack) – [GitHub](https://github.com/joaostack)
+<b>João H.</b> (joaostack) – [GitHub](https://github.com/joaostack)
