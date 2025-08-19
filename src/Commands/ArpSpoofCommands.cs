@@ -38,6 +38,13 @@ public class ArpSpoofCommands
     /// </summary>
     public void Execute()
     {
-        PacketBuild.Spoof(_device, _targetIp, _targetMac, _targetGateway, _targetGatewayMac);
+        try
+        {
+            PacketBuild.Spoof(_device, _targetIp, _targetMac, _targetGateway, _targetGatewayMac);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 }

