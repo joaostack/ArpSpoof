@@ -35,25 +35,27 @@ By github.com/joaostack
         try
         {
             var cts = new CancellationTokenSource();
-            var ct = cts.Token;
+            Console.CancelKeyPress += (s, e) =>
+            {
+                e.Cancel = true;
+                cts.Cancel();
+            };
 
             // Open Device select menu
             var device = DeviceHelper.SelectDevice();
             DeviceHelper.OpenDevice(device);
 
             // Get Gateway MAC Address
-            var gatewayMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, gatewayAddress, ct));
+            var gatewayMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, gatewayAddress, cts.Token));
             Console.WriteLine(gatewayMac.ToString());
 
             // Get Target MAC Address
-            var targetMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, targetAddress, ct));
+            var targetMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, targetAddress, cts.Token));
             Console.WriteLine(targetMac.ToString());
 
             // Instantiate ArpSpoofCommands
             var cmd = new ArpSpoofCommands(device, IPAddress.Parse(targetAddress), targetMac, IPAddress.Parse(gatewayAddress), gatewayMac);
-            cmd.Execute();
-
-            device.Close();
+            await cmd.ExecuteAsync(cts.Token);
         }
         catch (Exception ex)
         {

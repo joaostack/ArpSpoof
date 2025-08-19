@@ -36,11 +36,22 @@ public class ArpSpoofCommands
     /// <summary>
     /// Executes the ARP spoofing command.
     /// </summary>
-    public void Execute()
+    public async Task ExecuteAsync(CancellationToken ct)
     {
         try
         {
-            PacketBuild.Spoof(_device, _targetIp, _targetMac, _targetGateway, _targetGatewayMac);
+            Console.WriteLine("[+] ArpSpoof started, press CTRL+C to cancel.");
+
+            while (!ct.IsCancellationRequested)
+            {
+                PacketBuild.Spoof(_device, _targetIp, _targetMac, _targetGateway, _targetGatewayMac);
+                await Task.Delay(2000, ct);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            _device.Close();
+            Environment.Exit(0);
         }
         catch (Exception ex)
         {
