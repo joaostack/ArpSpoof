@@ -1,4 +1,4 @@
-# ArpSpoof
+# ArpPoison
 
 A simple ARP spoofing tool written in C# for Windows/Linux environments.  
 Designed for ethical hacking and penetration testing purposes.
@@ -49,6 +49,12 @@ sudo dotnet run --project src -- --target-address 192.168.2.221 --gateway-addres
 You will be prompted to select a network interface.  
 The program will attempt to discover MAC addresses and start spoofing.
 
+## Demo 1
+<img width="481" height="315" alt="Screenshot_20250819_134945" src="https://github.com/user-attachments/assets/b32f64bf-9b21-4e4e-9616-9b6474bcd5bc" />
+
+## Demo 2
+<img width="628" height="205" alt="Screenshot_20250819_134933" src="https://github.com/user-attachments/assets/7e19f7c9-ab6d-44b3-a97f-41093420fc67" />
+
 ---
 
 ## Dependencies
@@ -69,3 +75,4 @@ Please respect ethical hacking principles and only test in environments you own 
 ## Author
 
 <b>João H.</b> (joaostack) – [GitHub](https://github.com/joaostack)
+
