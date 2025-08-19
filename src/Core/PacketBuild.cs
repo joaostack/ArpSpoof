@@ -59,7 +59,7 @@ public class PacketBuild
 
             device.StartCapture();
             device.SendPacket(ethernetPacket);
-            await Task.Delay(3000, ct);
+            await Task.Delay(2000, ct);
             device.StopCapture();
 
             return macRes ?? throw new InvalidOperationException($"[GetMacFromIP] MAC address not found for the target IP {host}");

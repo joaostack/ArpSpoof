@@ -1,14 +1,16 @@
 using System.Threading.Tasks;
 using ArpSpoof.Commands;
 using ArpSpoof.Core;
+using System.Net.NetworkInformation;
 using SharpPcap;
+using System.Net;
 
 class Program
 {
     static string ASCIIART = @"
    ___   ___  ___  ____  ____________  _  __
   / _ | / _ \/ _ \/ __ \/  _/ __/ __ \/ |/ /
- / __ |/ , _/ ___/ /_/ // /_\ \/ /_/ /    / 
+ / __ |/ , _/ ___/ /_/ // /_\ \/ /_/ /    /
 /_/ |_/_/|_/_/   \____/___/___/\____/_/|_/
 By github.com/joaostack
 ";
@@ -38,10 +40,13 @@ By github.com/joaostack
             var device = DeviceHelper.SelectDevice();
             DeviceHelper.OpenDevice(device);
 
-            var gatewayMac = await PacketBuild.GetMacAddress(device, gateway, ct);
+            var gatewayMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, gateway, ct));
             Console.WriteLine(gatewayMac.ToString());
 
-            var cmd = new ArpSpoofCommands(target, gateway, gatewayMac.ToString());
+            var targetMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, target, ct));
+            Console.WriteLine(targetMac.ToString());
+
+            var cmd = new ArpSpoofCommands(device, IPAddress.Parse(target), targetMac, IPAddress.Parse(gateway), gatewayMac);
             cmd.Execute();
 
             device.Close();
