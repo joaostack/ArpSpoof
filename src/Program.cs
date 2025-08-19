@@ -4,6 +4,7 @@ using ArpSpoof.Core;
 using System.Net.NetworkInformation;
 using SharpPcap;
 using System.Net;
+using System.CommandLine;
 
 class Program
 {
@@ -39,6 +40,7 @@ By github.com/joaostack
             {
                 e.Cancel = true;
                 cts.Cancel();
+                Console.WriteLine("Stopping...");
             };
 
             // Open Device select menu
@@ -47,15 +49,21 @@ By github.com/joaostack
 
             // Get Gateway MAC Address
             var gatewayMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, gatewayAddress, cts.Token));
-            Console.WriteLine(gatewayMac.ToString());
+            Console.WriteLine($"Gateway MAC Address: {gatewayMac.ToString()}");
 
             // Get Target MAC Address
             var targetMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, targetAddress, cts.Token));
-            Console.WriteLine(targetMac.ToString());
+            Console.WriteLine($"Target MAC Address: {targetMac.ToString()}");
 
             // Instantiate ArpSpoofCommands
-            var cmd = new ArpSpoofCommands(device, IPAddress.Parse(targetAddress), targetMac, IPAddress.Parse(gatewayAddress), gatewayMac);
+            var cmd = new ArpSpoofCommands(device,
+                IPAddress.Parse(targetAddress), targetMac,
+                IPAddress.Parse(gatewayAddress), gatewayMac);
+
+            Console.WriteLine("[+] ArpSpoof started! press CTRL+C to cancel.");
             await cmd.ExecuteAsync(cts.Token);
+
+            device.Close();
         }
         catch (Exception ex)
         {

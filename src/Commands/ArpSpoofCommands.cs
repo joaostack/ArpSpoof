@@ -40,8 +40,6 @@ public class ArpSpoofCommands
     {
         try
         {
-            Console.WriteLine("[+] ArpSpoof started, press CTRL+C to cancel.");
-
             while (!ct.IsCancellationRequested)
             {
                 PacketBuild.Spoof(_device, _targetIp, _targetMac, _targetGateway, _targetGatewayMac);

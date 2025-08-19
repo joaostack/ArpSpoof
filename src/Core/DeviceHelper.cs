@@ -4,6 +4,9 @@ using SharpPcap;
 
 namespace ArpSpoof.Core;
 
+/// <summary>
+/// Helper class for device operations.
+/// </summary>
 public class DeviceHelper
 {
     /// <summary>
