@@ -6,6 +6,9 @@ using SharpPcap;
 
 namespace ArpSpoof.Core;
 
+/// <summary>
+/// Initializes a new instance of the <see cref="PacketBuild"/> class.
+/// </summary>
 public class PacketBuild
 {
     /// <summary>
