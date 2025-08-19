@@ -34,6 +34,11 @@ dotnet restore
 
 ## Usage
 
+Help Menu
+```bash
+sudo dotnet run --project src -- -h
+```
+
 Run the project with `sudo` (required for raw packet sending):
 
 ```bash
@@ -53,9 +58,6 @@ The program will attempt to discover MAC addresses and start spoofing.
 <img width="481" height="315" alt="Screenshot_20250819_134945" src="https://github.com/user-attachments/assets/b32f64bf-9b21-4e4e-9616-9b6474bcd5bc" />
 
 ## Demo 2
-<img width="628" height="205" alt="Screenshot_20250819_134933" src="https://github.com/user-attachments/assets/7e19f7c9-ab6d-44b3-a97f-41093420fc67" />
-
-## Demo 3
 <img width="783" height="201" alt="Screenshot_20250819_140537" src="https://github.com/user-attachments/assets/8084d121-c2d9-4ab5-8ea8-03d664044a21" />
 
 ---
@@ -78,6 +80,7 @@ Please respect ethical hacking principles and only test in environments you own 
 ## Author
 
 <b>João H.</b> (joaostack) – [GitHub](https://github.com/joaostack)
+
 
 
 
