@@ -42,18 +42,16 @@ public class PacketBuild
 
             string macRes = null;
 
+            var tcs = new TaskCompletionSource<string>();
+
             device.OnPacketArrival += (object s, PacketCapture e) =>
             {
                 var packet = Packet.ParsePacket(e.GetPacket().LinkLayerType, e.GetPacket().Data);
-                var eth = packet.Extract<EthernetPacket>();
                 var arp = packet.Extract<ArpPacket>();
 
-                if (eth != null && arp != null &&
-                    arp.SenderProtocolAddress.ToString() == host
-                    && arp.Operation == ArpOperation.Response)
+                if (arp != null && arp.SenderProtocolAddress.ToString() == host && arp.Operation == ArpOperation.Response)
                 {
-                    macRes = arp.SenderHardwareAddress.ToString();
-                    return;
+                    tcs.TrySetResult(arp.SenderHardwareAddress.ToString());
                 }
             };
 
@@ -62,9 +60,20 @@ public class PacketBuild
 
             device.StartCapture();
             device.SendPacket(ethernetPacket);
-            await Task.Delay(2000, ct);
-            device.StopCapture();
 
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(5000);
+
+            try
+            {
+                macRes = await tcs.Task.WaitAsync(cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                macRes = null;
+            }
+
+            device.StopCapture();
             return macRes ?? throw new InvalidOperationException($"[GetMacFromIP] MAC address not found for the target IP {host}");
         }
         catch (Exception ex)
