@@ -108,13 +108,14 @@ public class PacketBuild
             );
 
             // Sent to the gateway
-            var ethernetPacket = new EthernetPacket(device.MacAddress, targetMac, EthernetType.Arp);
-            ethernetPacket.PayloadPacket = arpRequestToGateway;
-            device.SendPacket(ethernetPacket);
+            var ethToGateway = new EthernetPacket(device.MacAddress, targetMac, EthernetType.Arp);
+            ethToGateway.PayloadPacket = arpRequestToGateway;
+            device.SendPacket(ethToGateway);
 
             // Sent to the target
-            ethernetPacket.PayloadPacket = arpRequestToTarget;
-            device.SendPacket(ethernetPacket);
+            var ethToTarget = new EthernetPacket(device.MacAddress, targetMac, EthernetType.Arp);
+            ethToTarget.PayloadPacket = arpRequestToTarget;
+            device.SendPacket(ethToTarget);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"[{DateTime.Now}] Sent ARP reply to target: {targetIp} -> {DeviceHelper.FormattedMac(targetMac)}");
