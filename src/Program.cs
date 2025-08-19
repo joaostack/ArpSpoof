@@ -18,15 +18,15 @@ By github.com/joaostack
     /// <summary>
     /// ArpSpoof Program
     /// </summary>
-    /// <param name="target"></param>
-    /// <param name="gateway"></param>
-    static async Task Main(string target, string gateway)
+    /// <param name="targetAddress"></param>
+    /// <param name="gatewayAddress"></param>
+    static async Task Main(string targetAddress, string gatewayAddress)
     {
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.WriteLine(ASCIIART);
         Console.ResetColor();
 
-        if (string.IsNullOrEmpty(gateway) || string.IsNullOrEmpty(target))
+        if (string.IsNullOrEmpty(gatewayAddress) || string.IsNullOrEmpty(targetAddress))
         {
             Console.WriteLine("-?, -h, --help\tShow help and usage information");
             return;
@@ -42,15 +42,15 @@ By github.com/joaostack
             DeviceHelper.OpenDevice(device);
 
             // Get Gateway MAC Address
-            var gatewayMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, gateway, ct));
+            var gatewayMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, gatewayAddress, ct));
             Console.WriteLine(gatewayMac.ToString());
 
             // Get Target MAC Address
-            var targetMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, target, ct));
+            var targetMac = PhysicalAddress.Parse(await PacketBuild.GetMacAddress(device, targetAddress, ct));
             Console.WriteLine(targetMac.ToString());
 
             // Instantiate ArpSpoofCommands
-            var cmd = new ArpSpoofCommands(device, IPAddress.Parse(target), targetMac, IPAddress.Parse(gateway), gatewayMac);
+            var cmd = new ArpSpoofCommands(device, IPAddress.Parse(targetAddress), targetMac, IPAddress.Parse(gatewayAddress), gatewayMac);
             cmd.Execute();
 
             device.Close();
