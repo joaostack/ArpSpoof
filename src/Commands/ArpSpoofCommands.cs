@@ -7,11 +7,11 @@ namespace ArpSpoof.Commands;
 
 public class ArpSpoofCommands
 {
-    private readonly ILiveDevice _device;
-    private readonly IPAddress _targetIp;
-    private readonly PhysicalAddress _targetMac;
-    private readonly IPAddress _targetGateway;
-    private readonly PhysicalAddress _targetGatewayMac;
+    private ILiveDevice _device;
+    private IPAddress _targetIp;
+    private PhysicalAddress _targetMac;
+    private IPAddress _targetGateway;
+    private PhysicalAddress _targetGatewayMac;
 
     public ArpSpoofCommands(ILiveDevice device, IPAddress targetIp, PhysicalAddress targetMac, IPAddress targetGateway, PhysicalAddress targetGatewayMac)
     {
